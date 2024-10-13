@@ -6,7 +6,7 @@ from gymnasium.spaces import Tuple, Discrete
 def roll_dice():
     return random.randint(1,6)
 
-class PigGameEnv:
+class PigGameEnv(gym.Env):
     def __init__(self):
 
         self.my_banked_money = 0
@@ -18,10 +18,10 @@ class PigGameEnv:
         self.opp_is_banked = False
 
         # we'll do 10 boxes, 0-10,10-20,...,90-100, maybe slightly different
-        self.observation_space = Tuple(Discrete(10, 0), Discrete(8, 0), Discrete(10, 0), Discrete(8, 0), Discrete(2, 0), Discrete(2, 0))
+        self.observation_space = Tuple((Discrete(10, 0), Discrete(8, 0), Discrete(10, 0), Discrete(8, 0), Discrete(2, 0), Discrete(2, 0)))
         self.action_space = gym.spaces.Discrete(2)
     
-    def _ubank_to_box(value: int):
+    def _ubank_to_box(self, value: int):
         if (value < 10):
             return 0
         if (value < 15):
@@ -39,7 +39,7 @@ class PigGameEnv:
         else:
             return 7
 
-    def _bank_to_box(value: int):
+    def _bank_to_box(self, value: int):
         if (value < 15):
             return 0
         if (value < 20):
@@ -62,12 +62,12 @@ class PigGameEnv:
             return 9
 
     def _get_obs(self):
-        return {
+        return tuple((
             self._bank_to_box(self.my_banked_money), self._ubank_to_box(self.my_ubanked_money),
             self._bank_to_box(self.opp_banked_money), self._ubank_to_box(self.opp_ubanked_money),
             1 if (self.my_banked_money + self.my_ubanked_money >= 100) else 0, # little flag the AI hopefully picks up on that tells it that it wins if it banks now
             1 if (self.opp_is_banked) else 0, # just telling the ai whether or not the opponent is banked
-        }
+        ))
 
     def _get_info(self): # idk what this function really does, might use it later tho
         return {
@@ -96,13 +96,12 @@ class PigGameEnv:
     # step function is basically just an iteration of the loop, kinda, its a step
     # in step function we compute the agents reward for their action
     def step(self, action):
-        
         if action == 1: # bank is 1, continue is 0
             self.my_banked_money += self.my_ubanked_money
             self.my_ubanked_money = 0
             if not self.opp_is_banked:
                 rolled_a_one = False
-                while not rolled_a_one and self.opp_ubanked_money < 15:
+                while not rolled_a_one and self.opp_ubanked_money < 25:
                     roll = roll_dice()
                     if (roll == 1):
                         rolled_a_one = True
@@ -122,7 +121,7 @@ class PigGameEnv:
                 self.my_ubanked_money += roll
                 if not self.opp_is_banked:
                     self.opp_ubanked_money += roll
-                    if (self.opp_ubanked_money >= 15):
+                    if (self.opp_ubanked_money >= 25):
                         self.opp_is_banked = True
                         self.opp_banked_money += self.opp_ubanked_money 
                         self.opp_ubanked_money = 0

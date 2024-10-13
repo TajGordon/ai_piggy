@@ -41,7 +41,7 @@ class PigGameAgent:
             terminated: bool,
             next_obs: tuple[int, int, int, int, int, int],
     ):
-        future_q_value = (not terminated) * np.map(self.q_values[obs][action])
+        future_q_value = (not terminated) * np.max(self.q_values[obs][action])
         temporal_difference = (
             reward + self.discount_factor * future_q_value - self.q_values[obs][action]
         )
@@ -52,7 +52,7 @@ class PigGameAgent:
         self.training_error.append(temporal_difference)
     
     def decay_epsilon(self):
-        self.epsilon = max(self.final_epsilon, self.epsilon ** -self.epislon_decay)
+        self.epsilon = max(self.final_epsilon, self.epsilon ** -self.epsilon_decay)
 
 
 # hyperparameters
@@ -63,9 +63,10 @@ epsilon_decay = start_epsilon / (n_episodes / 2) # reduce exloration over time
 final_epsilon = 0.1
 
 env = gym.make("PigGame-v0")
-env = gym.wrappers.RecordEpisodeStatistics(env, deque_size=n_episodes)
+env = gym.wrappers.RecordEpisodeStatistics(env)
 
 agent = PigGameAgent(
+    env=env,
     learning_rate=learning_rate,
     initial_epsilon=start_epsilon,
     epsilon_decay=epsilon_decay,
@@ -93,7 +94,7 @@ for episode in tqdm(range(n_episodes)):
         next_obs, reward, terminated, truncated, info = env.step(action)
 
         # update the agent
-        agent.update(obs=obs, action=action, reward=reward, terminted=terminated, next_obs=next_obs)
+        agent.update(obs=obs, action=action, reward=reward, terminated=terminated, next_obs=next_obs)
 
         # udpate if the environment is done and the current obs # tf does this mean
         done = terminated or truncated 
