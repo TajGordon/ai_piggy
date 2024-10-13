@@ -14,6 +14,7 @@ class PigGameEnv(gym.Env):
         self._op_banked_money = 0
         self._op_unbanked_money = 0
         self._op_is_banked = False
+        self.wins = 0
 
         # tuple of 4 elements, our coins, unbanked coins, their coins, their unbanked coins
         self.observation_space = Tuple((Discrete(n=8, start=0), Discrete(n=8, start=0), Discrete(n=8, start=0), Discrete(n=8, start=0), Discrete(n=2, start=0)))
@@ -84,6 +85,7 @@ class PigGameEnv(gym.Env):
             self._op_is_banked = True
 
         roll = 0
+        storer = 0
 
         if (self.action_to_word[action] == 'bank'):
             self._banked_money += self._unbanked_money
@@ -106,6 +108,7 @@ class PigGameEnv(gym.Env):
             roll = random.randint(1, 6)
             # if roll is a one, then we just set the unbanked money to 0 for both players,
             if roll == 1:
+                storer = -self._unbanked_money / 100.0
                 self._unbanked_money = 0
                 self._op_unbanked_money = 0
                 self._op_is_banked = False
@@ -122,14 +125,13 @@ class PigGameEnv(gym.Env):
         if terminated:
             if self._banked_money >= 100:
                 reward = 1.0
+                self.wins += 1
             else:
                 reward = -1.0
+        elif roll == 1:
+            reward = (self._banked_money - self._op_banked_money)/1000.0 + self._unbanked_money / 100.0 + storer
         else:
-            reward = (self._banked_money - self._op_banked_money * 0.8)/1000.0 + self._unbanked_money / 1000.0
-        if roll == 1:
-            reward -= 0.05
-        else:
-            reward += roll / 100.0
+            reward = roll / 1000.0 + (self._banked_money - self._op_banked_money)/1000.0 + self._unbanked_money / 100.0
 
         observation = self._get_obs()
         info = self._get_info()

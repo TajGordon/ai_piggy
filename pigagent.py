@@ -14,7 +14,7 @@ class PigAgent:
         initial_epsilon: float,
         epsilon_decay: float,
         final_epsilon: float,
-        discount_factor: float = 0.98,
+        discount_factor: float = 0.99,
     ):
         """Initialize a Reinforcement Learning agent with an empty dictionary
         of state-action values (q_values), a learning rate and an epsilon.
@@ -45,6 +45,8 @@ class PigAgent:
         self.wins = 0
         self.games_played = 0
         self.episode_lengths = []
+        self.max_q_values = []
+        self.avg_scores = []
 
     def get_action(self, obs: tuple[int, int, int, int, int]) -> int:
         """
@@ -139,8 +141,6 @@ for episode in tqdm(range(n_episodes)):
     episode_rewards.append(episode_reward)
     episode_lengths.append(episode_length)
     agent.games_played += 1
-    if episode_reward > 0:  # Assuming reward > 0 means a win
-        agent.wins += 1
     win_rates.append(agent.wins / agent.games_played)
     epsilons.append(agent.epsilon)
 
