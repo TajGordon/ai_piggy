@@ -134,5 +134,5 @@ class PigGameEnv(gym.Env):
 
 gym.register(
     id="PigGame-v0",
-    entry_point=PigGameEnv,
+    entry_point="pigenv:PigGameEnv",
 )
