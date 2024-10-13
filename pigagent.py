@@ -14,7 +14,7 @@ class PigAgent:
         initial_epsilon: float,
         epsilon_decay: float,
         final_epsilon: float,
-        discount_factor: float = 0.95,
+        discount_factor: float = 0.98,
     ):
         """Initialize a Reinforcement Learning agent with an empty dictionary
         of state-action values (q_values), a learning rate and an epsilon.
@@ -77,7 +77,8 @@ class PigAgent:
         self.training_error.append(temporal_difference)
 
     def decay_epsilon(self):
-        self.epsilon = max(self.final_epsilon, self.epsilon - self.epsilon_decay)
+        self.epsilon = max(self.final_epsilon, self.epsilon * np.exp(-self.epsilon_decay))
+
 
 
 
@@ -86,7 +87,7 @@ class PigAgent:
 
 
 # Hyperparameteres
-learning_rate = 0.001
+learning_rate = 0.002
 n_episodes = 1_000_000
 log_window = 10_000
 start_epsilon = 1.0

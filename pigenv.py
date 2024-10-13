@@ -83,6 +83,8 @@ class PigGameEnv(gym.Env):
             self._op_unbanked_money = 0
             self._op_is_banked = True
 
+        roll = 0
+
         if (self.action_to_word[action] == 'bank'):
             self._banked_money += self._unbanked_money
             self._unbanked_money = 0
@@ -123,7 +125,11 @@ class PigGameEnv(gym.Env):
             else:
                 reward = -1.0
         else:
-            reward = (self._banked_money - self._op_banked_money * 0.8)/10000.0 + (self._unbanked_money - self._op_unbanked_money/2.0) / 10000.0
+            reward = (self._banked_money - self._op_banked_money * 0.8)/1000.0 + self._unbanked_money / 1000.0
+        if roll == 1:
+            reward -= 0.05
+        else:
+            reward += roll / 100.0
 
         observation = self._get_obs()
         info = self._get_info()
