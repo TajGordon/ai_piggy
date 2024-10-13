@@ -90,7 +90,7 @@ class PigAgent:
 
 # Hyperparameteres
 learning_rate = 0.002
-n_episodes = 1_000_000
+n_episodes = 10_000_000
 log_window = 10_000
 start_epsilon = 1.0
 epislon_decay = start_epsilon / (n_episodes * 0.5) # reduce the exploration over time
